@@ -1,0 +1,206 @@
+\documentclass[fleqn,11pt]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[francais]{babel}
+%\usepackage{french} % Sommaire en début de document
+\usepackage{amsmath} % Maths
+\usepackage{amsfonts}	% Maths
+\usepackage[top=3cm, bottom=3cm, left=3cm, right=3cm]{geometry} % Marges
+\usepackage{listings} % Mise en forme du code (pour Hoare) ## À REVOIR ###
+%\usepackage{ifthen} % Structures If Then Else
+\usepackage{theorem} % Styles supplémentaires pour théorèmes
+\usepackage{url}
+\usepackage{array} % Tableaux 'typographiquement plus corrects' (?)
+
+\usepackage{enumerate} % Changer les puces des listes d'énumération
+\usepackage{setspace} % Changer les interlignes
+
+%\usepackage{subfig} % Créer des sous-figures
+\usepackage{graphicx} % Importer des images
+
+
+% Redéfinition du style des caption
+\makeatletter
+\renewcommand{\fnum@figure}{\small\textbf{\figurename~\thefigure}}
+\makeatother
+
+% Redéfinition du style 'leo' pour les URL (police plus petite)
+\makeatletter
+\def\url@leostyle{%
+  \@ifundefined{selectfont}{\def\UrlFont{\sf}}{\def\UrlFont{\small\ttfamily}}}
+\makeatother
+\urlstyle{leo}
+
+
+%%% Packages temporaires %%%
+%\usepackage{ulem} % Vaguelettes de soulignement
+%\usepackage{soul} % Soulignements et texte barré
+%\usepackage{color} % Couleurs du texte
+%\newcommand{\AREVOIR}[1]{\textbf{\textcolor{red}{#1}}}
+%\usepackage{algorithmic}
+%\usepackage{layout}
+
+
+% Définition des styles de théorèmes
+{\theorembodyfont{\upshape}
+\newtheorem{definition}{Définition}[chapter]
+\newtheorem{axiome}{Axiome}[chapter]
+\newtheorem{regle}{Règle}[chapter]
+\newtheorem{propriete}{Propriété}[chapter]
+}
+
+
+% Définition de l'environnement 'Liste sans puce'
+\newenvironment{listesanspuce}{\ \begin{itemize}\renewcommand{\labelitemi}{}}{\end{itemize}}
+
+%%% Définitions pour la logique de Hoare
+
+% Définition de l'environnement 'Triplet de Hoare' avec retour à la ligne
+\newenvironment{hoare}{\begin{listesanspuce}\item}{\end{listesanspuce}}
+% Définition des commandes de transition
+\newcommand{\ha}{\}\ }
+\newcommand{\hb}{\ \{}
+% Définition des commandes avec retour à la ligne
+\newcommand{\hbegin}{\begin{hoare}$\{}
+\newcommand{\hend}{\}$\end{hoare}}
+% Définition des commandes intégrées dans le paragraphe
+\newcommand{\hbegini}{$\{}
+\newcommand{\hendi}{\}$}
+% Définition des commandes en mode listing
+%%%%% Compteur ???!! %%%%%%%
+\newcommand{\hbeginl}{\begin{listesanspuce}\item $\{}
+\newcommand{\hal}{\}$\end{listesanspuce}\begin{enumerate}[1]}
+\newcommand{\hitem}{\item\quad}
+\newcommand{\hbl}{\end{enumerate}\begin{listesanspuce}\item$\{}
+\newcommand{\hendl}{\}$\end{listesanspuce}}
+
+% Définition des instructions particulières
+%  affectation « := »
+\newcommand{\hassign}{\texttt{:=}\:}
+%%% Anglais
+%  skip
+\newcommand{\hskp}{\texttt{skip}}
+%  if then else
+\newcommand{\hif}{\texttt{If}\ (}
+\newcommand{\hthen}{)\ \texttt{Then}\ }
+\newcommand{\helse}{\ \texttt{Else}\ }
+\newcommand{\hfi}{\ \texttt{End\_If}}
+%  while do end
+\newcommand{\hwhile}{\texttt{While}\ (}
+\newcommand{\hdo}{)\ \texttt{Do}\ }
+\newcommand{\hod}{\ \texttt{End\_While}}
+
+%%%% Français
+%%  skip
+%\newcommand{\hskp}{\texttt{skip}}
+%%  if then else
+%\newcommand{\hif}{\texttt{Si}\ (}
+%\newcommand{\hthen}{)\ \texttt{Alors\_Faire}\ }
+%\newcommand{\helse}{\ \texttt{Sinon\_Faire}\ }
+%\newcommand{\hfi}{\ \texttt{Fin\_Si}}
+%%  while do end
+%\newcommand{\hwhile}{\texttt{Tant\_Que}\ (}
+%\newcommand{\hdo}{)\ \texttt{Faire}\ }
+%\newcommand{\hod}{\ \texttt{Fin\_Tant\_Que}}
+
+
+%\newenvironment{definition}[1][]{\ifthenelse{\equal{#1}{}}{\begin{tdefinition}[Plein : #1]}{\begin{tdefinition}[VIDE !]}\ignorespaces\upshape}{\end{tdefinition}}
+%\newenvironment{definition}[1][]{\begin{tdefinition}[#1]\ignorespaces\upshape}{\end{tdefinition}}
+%\newenvironment{axiome}[1]{\begin{taxiome}[#1]\ignorespaces\upshape}{\end{taxiome}}
+%\newenvironment{regle}[1]{\begin{tregle}[#1]\ignorespaces\upshape}{\end{tregle}}
+
+% Environnements redéfinis pour théorèmes et définitions ### À REVOIR ###
+%\newenvironment{textedroit}[0]{\begin{rm}}{\end{rm}}
+%%                                         Ne fonctionne pas ?!   vvvvvvvv
+%\newenvironment{definition}[1]{\begin{tdefinition}#1\ignorespaces\upshape}{\end{tdefinition}}
+%\newenvironment{definition}[1]{\begin{tdefinition}#1\begin{rm}\ignorespaces}{\end{rm}\end{tdefinition}}
+%\newenvironment{definition}[1]{\tdefinition#1\ignorespaces\upshape}
+%%%%%\newenvironment{nth}[2]{\begin{#1}#2}{\end{#1}}
+% ##########################
+% Définition alternative ### à revoir ###
+%\newenvironment{definition}[1][Definition]{\begin{trivlist}
+%\item[\hskip \labelsep {\bfseries Définition #1}]}{\end{trivlist}}
+
+
+% Définition du style 'code' ### À REVOIR ###
+\lstset{
+%language=Hoare,
+basicstyle=\footnotesize,
+numbers=left,
+numberstyle=\normalsize,
+numbersep=7pt,
+}
+
+
+\title{Application de la logique de Hoare\\aux réseaux de régulation génétique avec multiplexes}
+\author{Maxime \bsc{Folschette}}
+\date{\today}
+
+
+\begin{document}
+\maketitle
+\tableofcontents
+%\layout
+
+% Espacement des paragraphes
+%\setlength{\parskip}{5pt}
+
+\chapter*{}
+\addcontentsline{toc}{chapter}{Résumé}
+\noindent \Large \textbf{\textsc{Résumé}}\\
+
+\normalsize
+\noindent
+%L'étude des interactions entre gènes est l'un des domaines de la bio-informatique et profite amplement de l'automatisation des calculs. 
+Au sein de la bio-informatique se trouve le domaine de l'étude des interactions entre gènes.
+Dans ce rapport, le modèle de Thomas, basé sur une représentation discrète d'un système de gènes, est présenté. Ce formalisme permet de modéliser un système de gènes en interaction à l'aide d'un graphe de régulation et d'une paramétrisation tout en s'affranchissant de la connaissance de données quantitatives. Ce type de modélisation amène à la construction d'un graphe d'états que permettent d'étudier les logiques temporelles. Afin de compléter cette approche, la logique de Hoare est présentée et appliquée au domaine de la régulation génétique car elle semble plus adaptée à l'inférence de paramètres biologiques.
+
+\chapter*{Introduction}
+\addcontentsline{toc}{chapter}{Introduction}
+
+\section*{Le contexte de la bio-informatique}
+La terme de \emph{bio-informatique} est un terme très générique. Introduit en 1978 par Paulien Hogeweg et Ben Hesper, il qualifiait à l'origine uniquement l'étude des procédés informatiques dans les systèmes biotiques \cite{wikipedia-bioinformatics}. Aujourd'hui, il a cependant pris une dimension beaucoup plus large, et regroupe tous les domaines de recherche utilisant les technologies de l'informatique dans le but d'étudier les systèmes biologiques. On peut donc notamment y inclure les travaux de modélisation, d'observation, de simulation, de recensement. Les systèmes étudiés varient en échelle, depuis les mécanismes internes à la cellule jusqu'à des populations entières d'êtres vivants, mais aussi en nature, pouvant prendre des aspects pratiques comme la conception de médicaments ou plus théoriques comme l'étude et le référencement du génome humain. L'arrivée de l'informatique au sein du domaine de la biologie a permis de repousser les limites qui se posaient en termes de temps de calcul, de quantités de données et de stockage de l'information \cite{lingep-nilges-bioinformatics}.
+
+Cette notion très générale qu'est la bio-informatique comprend notamment le concept d'étude des interactions entre gènes. De nombreux outils ont été développés puis améliorés pour étudier les systèmes de régulation génétique. De façon très schématique, on pourrait les classer en quatre grandes catégories de formalismes \cite{jong-02} :
+\begin{itemize}
+  \item les réseaux, basés sur l'utilisation de graphes et une modélisation discrète de l'activité des gènes,
+  \item la modélisation par équations différentielles continues, qui peuvent cependant être partiellement discrétisées,
+  \item La modélisation par équations stochastiques,
+  \item l'utilisation de faits et de règles de programmation logique.
+\end{itemize}
+
+\section*{Développement}
+Le modèle auquel nous nous intéresserons au sein de ce rapport appartient à la catégorie des réseaux. René Thomas propose en 1973 une première ébauche de ce formalisme, auquel il fait subir par la suite plusieurs améliorations pour arriver à un outil appelé \emph{réseau de régulation génétique}. Le modèle étudié dans ce rapport consiste en une extension de cet outil. Il repose sur l'utilisation de graphes orientés, appelés \emph{graphes d'interaction}, qui permettent de représenter les gènes composant un système et leurs influences mutuelles. Ce modèle sera décrit en termes intuitifs puis défini formellement dans le chapitre~\ref{rrg}.
+
+L'étude d'un système de gènes représenté à l'aide de ce modèle amène à la construction d'un graphe d'états représentant les différentes configurations accessibles par le système. Son analyse est grandement facilitée par l'informatique, qui permet l'exécution d'algorithmes sur des graphes afin de vérifier certains propriétés. Dans ce contexte, les logiques temporelles ont déjà été utilisées pour définir puis vérifier des propriétés sur les graphes d'interaction. Ces logiques seront présentées au sein du chapitre~\ref{tempo}.
+
+Cependant, afin d'obtenir un approche qui semble plus adaptée à l'inférence de paramètres biologiques, une tentative d'application de la logique de Hoare fait actuellement l'objet d'un travail de recherche actif au sein de l'équipe MoVES (Modélisation et Vérification des Systèmes embarqués). Cette logique, à l'origine développée pour l'informatique théorique, sera présentée au chapitre~\ref{hoare}, et les mécanismes qui permettent son rattachement au modèle de Thomas seront développés.
+
+
+\include{parts/rrg}
+
+\include{parts/tempo}
+
+\include{parts/hoare}
+
+
+\chapter*{Conclusion}
+\addcontentsline{toc}{chapter}{Conclusion}
+Dans ce rapport bibliographique a été présenté le modèle de Thomas, qui permet l'étude des systèmes de gènes interagissant entre eux, puis ont été présentées deux techniques d'analyse de ce modèle.
+
+L'étude des interactions génétiques nécessite des outils de modélisation et d'abstraction. Le modèle de Thomas qui a été présenté propose d'approcher un système de gènes en interaction par un réseau de régulation génétique composé d'un graphe d'interactions et d'une paramétrisation. La puissance de ce modèle provient notamment du fait que les niveaux \mbox{d'expression} des gènes y sont représentés par des valeurs discrètes, ce qui permet de prendre uniquement en compte les seuils pour desquels des interactions ont effectivement lieu, mais aussi de s'affranchir de la connaissance des valeurs réelles de ces seuils.
+
+Il est possible à partir de ce type de modèle de construire un graphe d'états qui rend compte de toutes les configurations de niveaux d'expression possibles et des évolutions entre ces configurations. L'approche classique d'étude des graphes d'états consiste en l'utilisation de logiques temporelles. Ces logiques permettent d'exprimer des propriétés sur des états ou des chemins en prenant en compte la dynamique modélisée par le graphe. Dans le cadre du modèle de Thomas, ces logiques permettent d'exprimer des propriétés sur l'évolution d'un réseau de régulation génétique à partir d'un ensemble d'états.
+
+Un nouvel outil d'analyse des réseaux de régulation génétique a enfin été proposé, basé sur la logique de Hoare. Cette logique permet de caractériser un programme à partir d'une pré-condition et d'une post-condition. Rattachée au modèle de Thomas elle permet, \textit{via} l'utilisation de règles d'inférence et de l'opérateur de plus faible pré-condition, d'obtenir par exemple des conditions nécessaires à ce qu'un système de gènes puisse permettre un comportement donné.\\
+
+Le présent séminaire bibliographique a permis le développement des notions qui seront utilisées lors du stage d'application du Master Recherche. La première partie de ce stage consistera en la conception et en l'implémentation informatique du concept de logique de Hoare appliquée aux réseaux de régulation génétique avec multiplexes. Une seconde partie consistera ensuite à enrichir ce concept nouveau et son implémentation en tentant d'ajouter une composante temporelle aux triplets de Hoare utilisés.
+
+
+\newpage
+\addcontentsline{toc}{chapter}{Bibliographie}
+\bibliographystyle{abbrv}
+\bibliography{biblio}
+
+\end{document}

@@ -1,0 +1,131 @@
+\chapter{Logiques temporelles}
+\label{tempo}
+Le modèle de Thomas permet d'obtenir un graphe d'états asynchrone (cf. section~\ref{rrg-reseau-de-regulation}) à partir d'un graphe d'interaction et d'une paramétrisation associée. Historiquement, les graphes sont étudiés à l'aide des logiques temporelles car celles-ci proposent un moyen commode \mbox{d'exprimer} des assertions sur des chemins. Ce chapitre sera l'occasion de présenter la logique CTL*, et de voir en quoi elle peut être utile à l'étude des réseaux de régulation génétiques.
+
+\section{Introduction}
+Les logiques temporelles ont été proposées afin de permettre de décrire des propriétés sur les chemins des graphes. L'idée à l'origine de la formulation de ce type de logiques est naturellement l'étude des systèmes modélisés par des graphes. Plusieurs logiques ayant des pouvoirs d'expression différents ont été proposées, et nous n'étudierons ici que la logique CTL*, qui permet d'exprimer des propriétés sur les états d'un graphe (contrairement à la logique de Hennessy-Milner par exemple, qui exprime des propriétés sur les transitions) selon un temps logique (constitué d'une succession discrète d'états et non d'un écoulement continu du temps) \cite{arnold-92, berard-08}. Cette logique s'applique à l'ensemble des structures de Kripke, qui est la famille de graphes orientés dont les états sont étiquetés par des propositions atomiques ; dans la suite de ce chapitre on pourra confondre les notions de graphe et de structure de Kripke. La logique CTL* étant elle-même composée des logiques temporelles CTL et LTL, ces deux dernières seront tout d'abord définies dans les sections suivantes.
+
+\subsection*{Définitions préalables}
+Les logiques LTL et CTL s'appliquent à des structures de Kripke, qui représentent un type de graphe particulier.
+\begin{definition}[Structure de Kripke]
+Une \emph{structure de Kripke} sur un ensemble $\mathsf{Prop}$ est un couple $\mathcal{S} = (Q, l)$ où :
+\begin{itemize}
+  \item $Q$ est un graphe ;
+  \item $l : Q \mapsto \mathcal{P}(\mathsf{Prop})$ est la fonction d'étiquetage.
+\end{itemize}
+De plus, si une propriété $P \in \mathsf{Prop}$ et un état $q$ de $Q$ vérifient $P \in l(q)$, on dit alors que $P$ est vraie dans $q$.
+\end{definition}
+
+Il est de plus nécessaire de préciser la notion de chemin maximal, qui étend celle de chemin infini, souvent rencontrée en théorie des graphes.
+\begin{definition}[Chemin maximal]
+Un \emph{chemin maximal} sur un graphe est un chemin qui est soit infini, soit dont le dernier état est un état puits (\textit{i.e.} qui n'est l'origine d'aucune transition).
+\end{definition}
+Dans la suite, si $\sigma$ est un chemin sur un graphe donné, on note $\sigma_i$ son $i^\text{ème}$ état, le premier état ayant l'indice zéro.
+
+\section{La logique LTL}
+Soit une structure de Kripke $\mathcal{S}$ donnée. La logique temporelle linéaire, abrégée en LTL pour \textit{linear temporal logic} (on trouve parfois aussi PLTL), s'interprète sur la première position d'un chemin maximal $\sigma : q_0 \rightarrow q_1 \rightarrow q_2 \ldots$ du graphe. Elle se formule à l'aide de la grammaire suivante :
+  $$\varphi, \psi ::= \texttt{vrai} \mid P \mid \neg \varphi \mid \varphi \wedge \psi \mid \textsf{X} \varphi \mid \varphi \textsf{U} \psi$$
+où $P$ est une proposition atomique. La sémantique de la logique LTL est ensuite définie inductivement par :\\
+\begin{tabular}{ll}
+  $\sigma \models \texttt{vrai}$ & quel que soit $\sigma$,\\
+  $\sigma \models P$ & ssi $P$ est vraie dans $\sigma_0$,\\
+  $\sigma \models \neg \varphi$ & ssi $\sigma_0$ ne satisfait pas $\varphi$,\\
+  $\sigma \models \varphi \wedge \psi$ & ssi $\sigma_0$ vérifie $\varphi$ et $\psi$,\\
+  $\sigma \models \mathsf{X} \varphi$ & ssi $\sigma = \sigma_0.\sigma'$ et $\sigma' \models \varphi$,\\
+  $\sigma \models \varphi \mathsf{U} \psi$ & ssi il existe $i \in \mathbb{N}$ tel que $\sigma_i \models \psi$ et pour tout $k \in \mathbb{N}, 0 \leq k \leq i, \sigma_k \models \varphi$.
+\end{tabular}\\
+
+La modalité $\mathsf{X}$ (pour \emph{neXt}) permet de vérifier une propriété sur l'état suivant sur le chemin étudié : en effet, $\mathsf{X} \varphi$ est satisfaite dans un état lorsque $\varphi$ est satisfaite dans l'état suivant. La modalité $\mathsf{U}$ (pour \emph{Until}) permet de vérifier qu'une propriété est vraie jusqu'à ce qu'un autre le soit : ainsi, $\varphi \mathsf{U} \psi$ est satisfaite dans un état s'il existe un état dans le futur où $\psi$ est satisfaite, et si $\varphi$ est tout le temps satisfaite sur le chemin avant cela. Les modalités $\neg$ et $\wedge$ sont directement tirées de la logique modale ; on peut les utiliser pour définir des opérateurs modaux supplémentaires (tels que $\vee$ ou $\Rightarrow$). Enfin, on peut aussi définir les opérateurs temporels suivants :
+\begin{itemize}
+  \item $\mathsf{F} \varphi \equiv \texttt{vrai} \mathsf{U} \varphi$, signifie que la propriété $\varphi$ sera satisfaite un jour (\textit{Fatalement}),
+  \item $\mathsf{G} \varphi \equiv \neg \mathsf{F} (\neg \varphi)$, signifie que la propriété $\varphi$ est toujours vérifiée (\textit{Globalement}).
+\end{itemize}
+On trouve parfois aussi dans la littérature les symboles $\Diamond$ à la place de $\mathsf{F}$ et $\Box$ à la place de $\mathsf{G}$.\\
+
+Afin d'illustrer le fonctionnement de cette logique à l'aide d'un exemple, considérons un graphe dont les états sont étiquetés par le langage $\mathcal{L} = \{a, b\}$. On déduit de ce graphe une structure de Kripke en paramétrant chaque état par une propriété $P_x$ où $x \in \mathcal{L}$, de façon à ce que $P_x$ soit vraie dans un état si et seulement si cet état est étiqueté par $x$. On souhaite caractériser par la logique LTL tous les chemins qui appartiennent aux mots infinis : $(a^*.a.b)^{\omega}$, \textit{i.e.} les mots qui commencent par $a$, et contiennent au plus une occurrence successive de $b$.
+
+Le fait qu'un état étiqueté par $b$ soit toujours suivi d'un état étiqueté par $a$ se traduit par la formule :
+\begin{listesanspuce}
+  \item $P_b \Rightarrow \mathsf{N}P_a$
+\end{listesanspuce}
+Afin de généraliser cette formule à tous les états d'un chemin, il suffit d'utiliser l'opérateur de globalité :
+\begin{listesanspuce}
+  \item $\mathsf{G}(P_b \Rightarrow \mathsf{N}P_a)$
+\end{listesanspuce}
+Les chemins qui forment les mots $(a^*.a.b)^{\omega}$ sont donc ceux qui vérifient cette formule.
+
+\section{La logique CTL}
+Soit une structure de Kripke $\mathcal{S}$ donnée. La logique temporelle arborescente, abrégée en CTL pour \textit{computation tree logic}, s'interprète sur un état $q$ du graphe. On notera dans la suite $\mathcal{E}^\mathcal{S}_q$ l'arbre des chemins maximaux de $\mathcal{S}$ partant de $q$. Elle se formule à l'aide de la grammaire suivante :
+  $$\varphi, \psi ::= \texttt{vrai} \mid P \mid \neg \varphi \mid \varphi \wedge \psi \mid \textsf{EX} \varphi \mid \textsf{AX} \varphi \mid \varphi \textsf{EU} \psi \mid \varphi \textsf{AU} \psi$$
+où $P$ est une proposition atomique. La sémantique de la logique CTL est alors définie inductivement par :\\
+\begin{tabular}{ll}%p{13cm}}
+  $q \models \texttt{vrai}$ & quel que soit $q$,\\
+  $q \models P$ & ssi $P$ est vraie dans $q$,\\
+  $q \models \neg \varphi$ & ssi $q$ ne satisfait pas $\varphi$,\\
+  $q \models \varphi \wedge \psi$ & ssi $q$ vérifie $\varphi$ et $\psi$,\\
+  $q \models \mathsf{EX} \varphi$ & ssi il existe un chemin maximal $\sigma$ de $\mathcal{E}^\mathcal{S}_q$ tel que $\sigma_1 \models \varphi$,\\
+  $q \models \mathsf{AX} \varphi$ & ssi tous les chemins maximaux $\sigma$ de $\mathcal{E}^\mathcal{S}_q$ vérifient $\sigma_1 \models \varphi$,\\
+  $q \models \varphi \mathsf{EU} \psi$ & ssi il existe un chemin maximal $\sigma$ de $\mathcal{E}^\mathcal{S}_q$ et un entier $i \in \mathbb{N}$ tels que $\sigma_i \models \psi$\\&\quad et pour tout $k \in \mathbb{N}, 0 \leq k \leq i, \sigma_k \models \varphi$.\\
+  $\sigma \models \varphi \mathsf{AU} \psi$ & ssi pour tout chemin maximal $\sigma$ de $\mathcal{E}^\mathcal{S}_q$, il existe un entier $i \in \mathbb{N}$ tel que $\sigma_i \models \psi$\\&\quad et pour tout $k \in \mathbb{N}, 0 \leq k \leq i, \sigma_k \models \varphi$.
+\end{tabular}\\
+
+Les quantificateurs $\mathsf{E}$ et $\mathsf{A}$ sont respectivement les quantificateurs existentiel et universel sur les chemins maximaux de l'arbre d'exécution. Ils ont donc des rôles qui s'apparient aux quantificateurs $\exists$ et $\forall$ de la logique du premier ordre. Les modalités $\mathsf{EX}$ et $\mathsf{AX}$ (resp. $\mathsf{EU}$ et $\mathsf{AU}$) sont donc semblables à une modalité $\mathsf{X}$ de la logique LTL (resp. $\mathsf{U}$) couplée à un quantificateur sur les chemins sortants de l'état considéré. Cependant, malgré ces similitudes, les deux logiques n'expriment strictement pas les mêmes comportements \cite{berard-08}.
+
+A partir des opérateurs précédents, on peut aussi définir les abréviations suivantes :
+\begin{itemize}
+  \item $\mathsf{EF} \varphi \equiv \mathsf{E} \texttt{vrai} \mathsf{U} \varphi$, signifie qu'il existe un chemin maximal sur lequel la propriété $\varphi$ sera satisfaite un jour ($\varphi$ est dite accessible),
+  \item $\mathsf{AF} \varphi \equiv \mathsf{A} \texttt{vrai} \mathsf{U} \varphi$, signifie que pour tous les chemins maximaux, la propriété $\varphi$ sera satisfaite un jour ($\varphi$ est dite inévitable),
+  \item $\mathsf{EG} \varphi \equiv \neg \mathsf{AF} (\neg \varphi)$, signifie qu'il existe un chemin maximal où la propriété $\varphi$ sera toujours satisfaite ($\varphi$ est dite préservable),
+  \item $\mathsf{AG} \varphi \equiv \neg \mathsf{EF} (\neg \varphi)$, signifie que $\varphi$ sera toujours satisfaite pour tous les chemins maximaux.
+\end{itemize}~
+
+La logique CTL peut entre autres être utilisée pour formuler des propriétés de sûreté. Par exemple, supposons que la structure de Kripke $\mathcal{S}$ modélise un système pouvant rencontrer des erreurs, les états potentiellement défaillants (\textit{i.e.} pouvant provoquer une erreur) étant paramétrés par $P$. On souhaite s'assurer que de telles erreurs peuvent être prises en charge par un module de secours, qui est lancé dans les états paramétrés par $Q$. Ainsi, dès qu'un état vérifiant $P$ est rencontré, il faut qu'un état vérifiant $Q$ puisse être rencontré par la suite. Cela se traduit par :
+\begin{listesanspuce}
+  \item $P \Rightarrow \mathsf{EF}Q$
+\end{listesanspuce}
+Cette propriété doit être vérifiée pour toutes les exécutions possibles, soit :
+\begin{listesanspuce}
+  \item $\mathsf{AG}(P \Rightarrow \mathsf{EF})$
+\end{listesanspuce}
+
+Si on a défini un état initial dans notre structure de Kripke, il faut que cet état vérifie cette formule. Si on se permet de débuter une exécution à partir de n'importe quel état, alors tous les états de la structure de Kripke doivent la vérifier.
+
+\section{La logique CTL*}
+La logique CTL* se définit de façon intuitive comme la \og réunion \fg{} des deux logiques présentées précédemment. Elle s'exprime donc en fonction de modalités portant sur les états (comme CTL) et sur les chemins (comme LTL).
+
+De façon formelle, CTL* est l'ensemble des formules d'état $\varphi_s$ définies à l'aide de la grammaire :
+  $$\varphi_s, \psi_s ::= \texttt{vrai} \mid P \mid \neg \varphi_s \mid \varphi_s \wedge \psi_s \mid \textsf{E} \varphi_p \mid \textsf{A} \varphi_p$$
+où $P$ est une proposition atomique, et où on définit les formules de chemins $\varphi_p$ à l'aide de la grammaire :
+  $$\varphi_p, \psi_p ::= \texttt{vrai} \mid \varphi_s \mid \varphi_p \wedge \psi_p \mid \textsf{X} \varphi_p \mid \varphi_p \textsf{U} \psi_p$$
+La sémantique des formules d'états est définie inductivement par :\\
+\begin{tabular}{ll}%p{13cm}}
+  $q \models \texttt{vrai}$ & quel que soit $q$,\\
+  $q \models P$ & ssi $P$ est vraie dans $q$,\\
+  $q \models \neg \varphi_s$ & ssi $q$ ne satisfait pas $\varphi_s$,\\
+  $q \models \varphi_s \wedge \psi_s$ & ssi $q$ vérifie $\varphi_s$ et $\psi_s$,\\
+  $q \models \mathsf{E} \varphi_p$ & ssi il existe un chemin maximal $\sigma$ de $\mathcal{E}^\mathcal{S}_q$ tel que $\sigma \models \varphi_p$,\\
+  $q \models \mathsf{A} \varphi_p$ & ssi tous les chemins maximaux $\sigma$ de $\mathcal{E}^\mathcal{S}_q$ vérifient $\sigma \models \varphi_p$.\\
+\end{tabular}\\
+La sémantique des formules de chemins est définie inductivement par :\\
+\begin{tabular}{ll}%p{13cm}}
+  $\sigma \models \texttt{vrai}$ & quel que soit $\sigma$,\\
+  $\sigma \models \varphi_s$ & ssi $\sigma_0 \models \varphi_s$,\\
+  $\sigma \models \varphi_p \wedge \psi_p$ & ssi $\sigma$ vérifie $\varphi_p$ et $\psi_p$,\\
+  $\sigma \models \mathsf{X} \varphi_p$ & ssi $\sigma = \sigma_0.\sigma'$ et $\sigma' \models \varphi_p$,\\
+  $\sigma \models \varphi_p \mathsf{U} \psi_p$ & ssi il existe $i \in \mathbb{N}$ tel que $\sigma_i \models \psi_p$ et pour tout $k \in \mathbb{N}, 0 \leq k \leq i, \sigma_k \models \varphi_p$.
+\end{tabular}\\
+
+\section{Cas d'utilisation et discussion}
+La logique modale se prête bien à l'étude d'entités non dynamiques en les caractérisant grâce à des propriétés atomiques ou composées de propriétés atomiques. Cependant, l'étude d'une entité dynamique (capable d'évoluer dans le temps) n'est pas possible à l'aide de la logique modale seule, car celle-ci ne possède pas de pouvoir d'expression suffisant pour décrire une évolution (temporelle ou logique), ou nécessite l'introduction d'un formalisme trop lourd pour pouvoir être facilement manipulable \cite{schnoebelen-99}. C'est la principale raison pour laquelle les logiques temporelles ont été développées.
+
+Les applications concrètes des logiques temporelles se retrouvent donc très souvent dans le domaine de la vérification formelle. Un système est généralement modélisé sous la forme de plusieurs graphes indépendants qui représentent le contrôleur et les parties contrôlées. Un produit synchronisé permet alors de réunir ces différents graphes en un unique graphe d'états cohérent, qui modélise bien le fait que les actions des parties contrôlées sont déterminées par le contrôleur. C'est sur cet ultime graphe que l'on souhaite vérifier certaines propriétés (de sûreté et de vivacité par exemple). On ajoute pour cela des propriétés sur ses états pour en faire une structure de Kripke, ce qui permet d'utiliser les logiques temporelles présentées ici.
+
+Il est à noter enfin que la logique CTL* a notamment été créée parce que les logiques CTL et LTL ont des pouvoirs d'expression incomparables \cite{berard-08} : il existe des formules pour la première qui ne sont pas exprimables par la seconde, et inversement.\\
+
+Dans le cadre de l'étude des réseaux de régulation génétique, les logique temporelles offrent un bon outil pour étudier le graphe d'états obtenu grâce au modèle de Thomas (cf. section~\ref{rrg-reseau-de-regulation}). Par exemple, un état stable (\textit{i.e.} un puits du graphe) se caractérise par la formule CTL* suivante :
+\begin{listesanspuce}
+  \item $q \models \neg \mathsf{EN} \texttt{vrai}$
+\end{listesanspuce}
+En effet, cette formule est vraie uniquement si l'état $q$ ne possède pas de successeur.
+
+Afin d'étudier des comportements plus complexes et qui n'apparaissent pas clairement dans la structure même du graphe d'état, il suffit de l'étiqueter avec les propriétés nécessaires. Ces propriétés peuvent dépendre des configurations dans chaque état (par exemple : $P$ est vérifiée dans tous les états où le gène $a$ possède un niveau d'expression supérieur ou égal à une constante) ou caractériser des configurations remarquables (qui mènent par exemple à des dysfonctionnements de l'organisme). On peut alors utiliser les logiques temporelles de la même façon que pour un système à vérifier.
